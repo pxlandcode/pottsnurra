@@ -14,7 +14,8 @@ const config = {
 		adapter: adapter(),
 		alias: {
 			$ui: './src/lib/components/ui',
-			$widgets: './src/lib/components/widgets'
+			$widgets: './src/lib/components/widgets',
+            $lib: './src/lib'
 		}
 	}
 };
