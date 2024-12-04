@@ -5,7 +5,7 @@
 	import { formatterToSek } from '$lib/helpers';
 	export let value = '';
 
-	let assignments = [{ id: 1, label: '', hours: 167, pricePerHour: 0, percentage: 0 }];
+	let assignments = [{ id: 1, label: '', hours: 168, pricePerHour: 0, percentage: 0 }];
 
 	const addAssignment = () => {
 		assignments.push({
