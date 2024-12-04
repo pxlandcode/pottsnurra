@@ -71,7 +71,7 @@
 						type="number"
 						bind:value={assignment.percentage}
 						label="Procent (% av totalen)"
-						placeholder="100"
+						placeholder="0"
 					/>
 
 					<button
