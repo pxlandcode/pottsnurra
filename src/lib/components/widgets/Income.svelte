@@ -32,8 +32,8 @@
 	}
 
 	let tabOptions = [
-		{ id: 'fixed', label: 'Fast inkomst', selected: true },
-		{ id: 'variable', label: 'Rörlig inkomst', selected: false }
+		{ id: 'fixed', label: 'Fast intäkt', selected: true },
+		{ id: 'variable', label: 'Rörlig intäkt', selected: false }
 	];
 
 	const handleTabChange = (event: CustomEvent<string>) => {
@@ -48,7 +48,7 @@
 <CardWithTabs {tabOptions} on:tabChange={handleTabChange}>
 	{#if tabOptions[0].selected}
 		<div>
-			<Input type="number" bind:value label="Fast inkomst" placeholder="Ange belopp..." />
+			<Input type="number" bind:value label="Fast intäkt" placeholder="Ange belopp..." />
 			<Output>{formatterToSek.format(+value)}/mån</Output>
 		</div>
 	{/if}
@@ -70,7 +70,7 @@
 					<Input
 						type="number"
 						bind:value={assignment.percentage}
-						label="Procent (% av totalen)"
+						label="Tilldelning (procent)"
 						placeholder="0"
 					/>
 
