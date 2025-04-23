@@ -3,9 +3,28 @@
 	import Input from '$ui/Input.svelte';
 	import Output from '$ui/Output.svelte';
 	import { formatterToSek } from '$lib/helpers';
+	import { createEventDispatcher } from 'svelte';
+
 	export let value = '';
 
 	let assignments = [{ id: 1, label: '', hours: 168, pricePerHour: 0, percentage: 0 }];
+
+	let tabOptions = [
+		{ id: 'fixed', label: 'Fast intäkt', selected: true },
+		{ id: 'variable', label: 'Rörlig intäkt', selected: false }
+	];
+
+	const dispatch = createEventDispatcher();
+
+	const handleTabChange = (event: CustomEvent<string>) => {
+		const selectedTabId = event.detail;
+		tabOptions = tabOptions.map((tab) => ({
+			...tab,
+			selected: tab.id === selectedTabId
+		}));
+
+		dispatch('selectedTabChange', selectedTabId);
+	};
 
 	const addAssignment = () => {
 		assignments.push({
@@ -30,19 +49,6 @@
 	$: if (tabOptions[1].selected) {
 		value = totalVariableIncome.toString();
 	}
-
-	let tabOptions = [
-		{ id: 'fixed', label: 'Fast intäkt', selected: true },
-		{ id: 'variable', label: 'Rörlig intäkt', selected: false }
-	];
-
-	const handleTabChange = (event: CustomEvent<string>) => {
-		const selectedTabId = event.detail;
-		tabOptions = tabOptions.map((tab) => ({
-			...tab,
-			selected: tab.id === selectedTabId
-		}));
-	};
 </script>
 
 <CardWithTabs {tabOptions} on:tabChange={handleTabChange}>

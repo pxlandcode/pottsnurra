@@ -28,7 +28,10 @@
 	onMount(() => dispatchExpenses());
 </script>
 
-<Card header="Utgifter">
+<Card
+	header="Utgifter"
+	info="Samtliga utgifter är kostnad per månad. För större utgifter, t.ex. dator och telefon, delas normalt den totala kostnaden på 24 för att få fram månadskostnaden."
+>
 	<div class="flex flex-col gap-2">
 		{#each $incomeData.expenses as _e, i}
 			<ExpenseInput
