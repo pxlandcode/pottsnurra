@@ -7,7 +7,7 @@
 
 <Card header="Möjlig bruttolön">
 	<div class="flex flex-col items-center gap-2">
-		<span class="text-4xl font-medium text-primary">
+		<span class="text-4xl font-medium text-primary mb-4">
 			{formatterToSek.format(salary)}/mån
 		</span>
 	</div>

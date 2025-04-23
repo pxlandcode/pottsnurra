@@ -23,6 +23,8 @@
 	let totalPension = 0;
 	let totalSalary = 0;
 
+	let selectedIncomeTab = 'fixed';
+
 	const getTotalExpenses = (e: CustomEvent) => (totalExpenses = e.detail);
 
 	const calculateIncomeWithPayrollTax = (salary: number) => {
@@ -31,9 +33,16 @@
 
 	onMount(() => (ready = true));
 
-	$: output =
-		+$incomeData.income -
-		(+insurance + +$incomeData.savings + +totalExpenses + +car + +$incomeData.pension + +vacation);
+	$: output = (function () {
+		const baseIncome = +$incomeData.income;
+
+		const sumOfOtherCosts =
+			+insurance + +$incomeData.savings + +totalExpenses + +car + +$incomeData.pension;
+
+		const maybeVacation = selectedIncomeTab === 'fixed' ? 0 : +vacation;
+
+		return baseIncome - (sumOfOtherCosts + maybeVacation);
+	})();
 
 	$: if (output) {
 		totalPension = +$incomeData.pension + +$incomeData.pension * pensionTax;
@@ -52,19 +61,27 @@
 				Återställ
 			</button>
 		</div>
-		<Income bind:value={$incomeData.income} />
+
+		<Income
+			bind:value={$incomeData.income}
+			on:selectedTabChange={(e) => (selectedIncomeTab = e.detail)}
+		/>
+
 		<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 			<Expenses on:total={getTotalExpenses} />
 			<Car bind:value={car} bind:choice={$incomeData.carChoice} />
 			<Pension bind:value={$incomeData.pension} />
 			<Savings bind:value={$incomeData.savings} />
-			<Vacation
-				bind:value={vacation}
-				bind:choice={$incomeData.vacationChoice}
-				income={$incomeData.income}
-			/>
+			{#if selectedIncomeTab !== 'fixed'}
+				<Vacation
+					bind:value={vacation}
+					bind:choice={$incomeData.vacationChoice}
+					income={$incomeData.income}
+				/>
+			{/if}
 			<Insurance bind:value={insurance} />
 		</div>
+
 		<GrossSalary salary={totalSalary} />
 	</div>
 {/if}
