@@ -3,36 +3,30 @@
 	import Card from '$ui/Card.svelte';
 	import Output from '$ui/Output.svelte';
 
-	export let value: number;
-	export let income: string;
-	export let choice = 1;
+	export let choice = 25;
+	export let fixed = false;
+	export let vacationCost = 0;
 
-	$: if (choice === 1) {
-		value = Math.round(+income * 0.6 * 0.12 * 0.8);
-	} else {
-		value = Math.round(+income * 0.6 * 0.144 * 0.8);
-	}
+	const vacationOptions = [
+		{ value: 25, label: '25 Dagar' },
+		{ value: 30, label: '30 Dagar' }
+	];
 </script>
 
 <Card header="Semester">
 	<div class="join">
-		<input
-			class="flex-1 join-item btn"
-			type="radio"
-			bind:group={choice}
-			value={1}
-			aria-label="25 Dagar"
-		/>
-		<input
-			class="flex-1 join-item btn"
-			type="radio"
-			bind:group={choice}
-			value={2}
-			aria-label="30 Dagar"
-		/>
+		{#each vacationOptions as option}
+			<input
+				class="flex-1 join-item btn"
+				type="radio"
+				bind:group={choice}
+				value={option.value}
+				aria-label={option.label}
+			/>
+		{/each}
 	</div>
 
-	<Output>
-		{formatterToSek.format(value)}
-	</Output>
+	{#if !fixed}
+		<Output>{formatterToSek.format(vacationCost)}</Output>
+	{/if}
 </Card>

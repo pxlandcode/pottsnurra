@@ -37,11 +37,11 @@ const initialData = {
 			value: ''
 		},
 		{
-			label: 'Utbildning',
+			label: 'Friskvård',
 			value: ''
 		},
 		{
-			label: 'Friskvård',
+			label: 'Utbildning',
 			value: ''
 		}
 	]

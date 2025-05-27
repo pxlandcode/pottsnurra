@@ -4,6 +4,17 @@
 	import Output from '$ui/Output.svelte';
 
 	export let value: string;
+
+	const itpLevels = [
+		{ salary: 40000, pension: 1800 },
+		{ salary: 50000, pension: 2250 },
+		{ salary: 60000, pension: 5154 },
+		{ salary: 70000, pension: 8154 }
+	];
+
+	function setPension(pension) {
+		value = pension.toString();
+	}
 </script>
 
 <Card header="Pension">
@@ -20,26 +31,16 @@
 		class="mt-4 border collapse border-base-300 bg-base-200 collapse-arrow"
 		role="button"
 	>
-		<div class="min-h-0 px-6 py-2 text-sm font-bold collapse-title">Se ITP 1 nivåer</div>
+		<div class="min-h-0 px-6 py-2 text-sm font-bold collapse-title">Se ITP 1 nivåer 2025</div>
 		<div class="collapse-content">
 			<table class="table">
 				<tbody>
-					<tr>
-						<td>ITP 1-nivå 40 000 kr/mån</td>
-						<th>1800 kr/mån</th>
-					</tr>
-					<tr>
-						<td>ITP 1-nivå 50 000 kr/mån</td>
-						<th>3158 kr/mån</th>
-					</tr>
-					<tr>
-						<td>ITP 1-nivå 60 000 kr/mån</td>
-						<th>6158 kr/mån</th>
-					</tr>
-					<tr>
-						<td>ITP 1-nivå 70 000 kr/mån</td>
-						<th>9158 kr/mån</th>
-					</tr>
+					{#each itpLevels as { salary, pension }}
+						<tr class="cursor-pointer hover:bg-base-300" on:click={() => setPension(pension)}>
+							<td>ITP 1-nivå {formatterToSek.format(salary)}/mån</td>
+							<th>{formatterToSek.format(pension)}/mån</th>
+						</tr>
+					{/each}
 				</tbody>
 			</table>
 		</div>

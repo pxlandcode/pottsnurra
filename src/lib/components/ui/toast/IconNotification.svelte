@@ -1,0 +1,35 @@
+<script>
+	export let size = '40px';
+	export let color = 'black';
+	export let extraClasses = '';
+
+	$: classString = `text-${color} ${extraClasses}`;
+</script>
+
+<svg
+	width={size}
+	height={size}
+	class={classString}
+	fill="currentColor"
+	viewBox="0 0 40 40"
+	xmlns="http://www.w3.org/2000/svg"
+>
+	<g clip-path="url(#clip0_24_34)">
+		<path
+			d="M4 34.4395V30.4395H8V16.4395C8 13.6728 8.83333 11.2145 10.5 9.06445C12.1667 6.91445 14.3333 5.50612 17 4.83945V3.43945C17 2.60612 17.2917 1.89779 17.875 1.31445C18.4583 0.73112 19.1667 0.439453 20 0.439453C20.8333 0.439453 21.5417 0.73112 22.125 1.31445C22.7083 1.89779 23 2.60612 23 3.43945V4.83945C25.6667 5.50612 27.8333 6.91445 29.5 9.06445C31.1667 11.2145 32 13.6728 32 16.4395V30.4395H36V34.4395H4ZM20 40.4395C18.9 40.4395 17.9583 40.0478 17.175 39.2645C16.3917 38.4811 16 37.5395 16 36.4395H24C24 37.5395 23.6083 38.4811 22.825 39.2645C22.0417 40.0478 21.1 40.4395 20 40.4395ZM12 30.4395H28V16.4395C28 14.2395 27.2167 12.3561 25.65 10.7895C24.0833 9.22279 22.2 8.43945 20 8.43945C17.8 8.43945 15.9167 9.22279 14.35 10.7895C12.7833 12.3561 12 14.2395 12 16.4395V30.4395Z"
+			fill="currentColor"
+		/>
+	</g>
+	<defs>
+		<clipPath id="clip0_24_34">
+			<rect width="40" height="40" fill="white" transform="translate(0 0.439453)" />
+		</clipPath>
+	</defs>
+</svg>
+
+<style>
+	svg {
+		display: inline-block;
+		vertical-align: middle;
+	}
+</style>

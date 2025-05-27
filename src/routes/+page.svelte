@@ -11,12 +11,14 @@
 	import { onMount } from 'svelte';
 	import { scale } from 'svelte/transition';
 
+	// 💡 Constants
+	const employerFeeSalary = 1.3142;
+	const employerFeePension = 1.2426;
 	const payrollTax = 0.3142;
 	const pensionTax = 0.2426;
 
 	let ready = false;
 	let insurance = '1000';
-	let vacation = 1500;
 	let car: number;
 
 	let totalExpenses = 0;
@@ -24,6 +26,60 @@
 	let totalSalary = 0;
 
 	let selectedIncomeTab = 'fixed';
+	let calculatedSavings = 0;
+
+	let maxGrossSalary = 0;
+	let grossSalary = 0;
+
+	let vacationDays = 25;
+	let vacationCost = 0;
+
+	$: {
+		if ($incomeData.income) {
+			const initialIncome = Number($incomeData.income);
+
+			// STEP 1: calculate fixed costs (including pension with employer fees)
+			const pensionCost = +$incomeData.pension * employerFeePension;
+			const fixedCosts = +insurance + +totalExpenses + +car + pensionCost;
+
+			// STEP 2: how much total budget is left for salary + vacation?
+			let availableForSalaryAndVacation = Math.max(initialIncome - fixedCosts, 0);
+
+			// STEP 3: calculate provisional max gross salary (before multiplying)
+			maxGrossSalary = Math.floor(availableForSalaryAndVacation / employerFeeSalary);
+
+			// STEP 4: clamp grossSalary to that max
+			grossSalary = Math.min(grossSalary, maxGrossSalary);
+
+			// STEP 5: calculate vacation cost (based on grossSalary)
+			vacationCost =
+				selectedIncomeTab === 'fixed'
+					? (grossSalary * 0.008 * employerFeeSalary * vacationDays) / 12
+					: (grossSalary * 0.054 * employerFeeSalary * vacationDays) / 12;
+
+			// STEP 6: calculate total salary cost (grossSalary × employer fee)
+			const salaryCost = grossSalary * employerFeeSalary;
+
+			// STEP 7: recompute how much is left after salary + vacation
+			const totalUsed = salaryCost + vacationCost;
+			const availableForSavings = Math.max(availableForSalaryAndVacation - totalUsed, 0);
+
+			// STEP 8: set outputs
+			calculatedSavings = availableForSavings;
+
+			// STEP 9: pension & salary net calculation
+			if (grossSalary > 0) {
+				totalPension = +$incomeData.pension + +$incomeData.pension * pensionTax;
+				totalSalary = Math.round(calculateIncomeWithPayrollTax(grossSalary - totalPension));
+			}
+
+			console.log('Max Gross Salary (before employer fees):', maxGrossSalary);
+			console.log('Pension cost (with employer fees):', pensionCost);
+			console.log('Vacation cost:', vacationCost);
+			console.log('Salary cost (with employer fees):', salaryCost);
+			console.log('Savings:', calculatedSavings);
+		}
+	}
 
 	const getTotalExpenses = (e: CustomEvent) => (totalExpenses = e.detail);
 
@@ -32,26 +88,10 @@
 	};
 
 	onMount(() => (ready = true));
-
-	$: output = (function () {
-		const baseIncome = +$incomeData.income;
-
-		const sumOfOtherCosts =
-			+insurance + +$incomeData.savings + +totalExpenses + +car + +$incomeData.pension;
-
-		const maybeVacation = selectedIncomeTab === 'fixed' ? 0 : +vacation;
-
-		return baseIncome - (sumOfOtherCosts + maybeVacation);
-	})();
-
-	$: if (output) {
-		totalPension = +$incomeData.pension + +$incomeData.pension * pensionTax;
-		totalSalary = Math.round(calculateIncomeWithPayrollTax(output - totalPension));
-	}
 </script>
 
 <svelte:head>
-	<title>Zefyr | Lön</title>
+	<title>Pottsnurran</title>
 </svelte:head>
 
 {#if ready}
@@ -67,21 +107,22 @@
 			on:selectedTabChange={(e) => (selectedIncomeTab = e.detail)}
 		/>
 
+		<GrossSalary
+			salary={grossSalary}
+			maxSalary={maxGrossSalary}
+			onSalaryChange={(newSalary) => (grossSalary = newSalary)}
+		/>
+
 		<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 			<Expenses on:total={getTotalExpenses} />
 			<Car bind:value={car} bind:choice={$incomeData.carChoice} />
 			<Pension bind:value={$incomeData.pension} />
-			<Savings bind:value={$incomeData.savings} />
-			{#if selectedIncomeTab !== 'fixed'}
-				<Vacation
-					bind:value={vacation}
-					bind:choice={$incomeData.vacationChoice}
-					income={$incomeData.income}
-				/>
-			{/if}
+			<Savings {calculatedSavings} />
+
+			<Vacation bind:choice={vacationDays} fixed={selectedIncomeTab === 'fixed'} {vacationCost} />
+
 			<Insurance bind:value={insurance} />
 		</div>
-
-		<GrossSalary salary={totalSalary} />
 	</div>
 {/if}
+§

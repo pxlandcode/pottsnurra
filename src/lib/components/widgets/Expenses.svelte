@@ -1,17 +1,19 @@
 <script lang="ts">
+	import { formatterToSek } from '$lib/helpers';
 	import { incomeData } from '$lib/income-data';
 	import Card from '$ui/Card.svelte';
 	import ExpenseInput from '$ui/ExpenseInput.svelte';
+	import Output from '$ui/Output.svelte';
 	import { createEventDispatcher, onMount } from 'svelte';
 
 	const dispatch = createEventDispatcher();
 
-	const dispatchExpenses = () => {
-		const totalExpenses = $incomeData.expenses.reduce((acc, { value }) => {
-			acc += value ? parseInt(value) : 0;
-			return acc;
-		}, 0);
+	$: totalExpenses = $incomeData.expenses.reduce((acc, { value }) => {
+		acc += value ? parseInt(value) : 0;
+		return acc;
+	}, 0);
 
+	const dispatchExpenses = () => {
 		dispatch('total', totalExpenses);
 	};
 
@@ -47,4 +49,7 @@
 			Lägg till +
 		</button>
 	</div>
+	<Output>
+		{formatterToSek.format(totalExpenses)}
+	</Output>
 </Card>
