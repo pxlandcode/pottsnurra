@@ -4,17 +4,19 @@
 	import Output from '$ui/Output.svelte';
 	import { formatterToSek } from '$lib/helpers';
 	import { createEventDispatcher } from 'svelte';
+	import { incomeData } from '$lib/income-data';
 
 	export let value = '';
 
-	let assignments = [{ id: 1, label: '', hours: 168, pricePerHour: 0, percentage: 0 }];
+	const dispatch = createEventDispatcher();
 
 	let tabOptions = [
 		{ id: 'fixed', label: 'Fast intäkt', selected: true },
 		{ id: 'variable', label: 'Rörlig intäkt', selected: false }
 	];
 
-	const dispatch = createEventDispatcher();
+	// ✅ Reactively pull from store
+	$: assignments = $incomeData.assignments || [];
 
 	const handleTabChange = (event: CustomEvent<string>) => {
 		const selectedTabId = event.detail;
@@ -27,24 +29,42 @@
 	};
 
 	const addAssignment = () => {
-		assignments.push({
-			id: Date.now(),
-			label: '',
-			hours: 0,
-			pricePerHour: 0,
-			percentage: 0
-		});
-		assignments = [...assignments];
+		const updated = {
+			...$incomeData,
+			assignments: [
+				...assignments,
+				{
+					id: Date.now(),
+					label: '',
+					hours: 0,
+					pricePerHour: 0,
+					percentage: 0
+				}
+			]
+		};
+		incomeData.set(updated);
 	};
 
 	const removeAssignment = (id: number) => {
-		assignments = assignments.filter((assignment) => assignment.id !== id);
+		const updated = {
+			...$incomeData,
+			assignments: assignments.filter((a) => a.id !== id)
+		};
+		incomeData.set(updated);
 	};
 
-	$: totalVariableIncome = assignments.reduce((acc, { hours, pricePerHour, percentage }) => {
-		const assignmentIncome = hours * pricePerHour * (percentage / 100);
-		return acc + assignmentIncome;
-	}, 0);
+	const updateAssignment = (updatedAssignment) => {
+		const updated = {
+			...$incomeData,
+			assignments: assignments.map((a) => (a.id === updatedAssignment.id ? updatedAssignment : a))
+		};
+		incomeData.set(updated);
+	};
+
+	$: totalVariableIncome = assignments.reduce(
+		(acc, { hours, pricePerHour, percentage }) => acc + hours * pricePerHour * (percentage / 100),
+		0
+	);
 
 	$: if (tabOptions[1].selected) {
 		value = totalVariableIncome.toString();
@@ -61,16 +81,24 @@
 
 	{#if tabOptions[1].selected}
 		<div class="flex flex-col gap-4">
-			{#each assignments as assignment, i}
-				<div class=" flex flex-col gap-2">
+			{#each assignments as assignment, i (assignment.id)}
+				<div class="flex flex-col gap-2">
 					<h3 class="text-md font-bold">Uppdrag {i + 1}</h3>
-					<Input type="number" bind:value={assignment.hours} label="Antal timmar" placeholder="0" />
+
+					<Input
+						type="number"
+						bind:value={assignment.hours}
+						label="Antal timmar"
+						placeholder="0"
+						on:input={() => updateAssignment(assignment)}
+					/>
 
 					<Input
 						type="number"
 						bind:value={assignment.pricePerHour}
 						label="Pris per timme"
 						placeholder="0"
+						on:input={() => updateAssignment(assignment)}
 					/>
 
 					<Input
@@ -78,6 +106,7 @@
 						bind:value={assignment.percentage}
 						label="Tilldelning (procent)"
 						placeholder="0"
+						on:input={() => updateAssignment(assignment)}
 					/>
 
 					<button

@@ -34,7 +34,6 @@
 	let maxGrossSalary = 0;
 	let grossSalary = 0;
 
-	let vacationDays = 25;
 	let vacationCost = 0;
 
 	$: {
@@ -45,7 +44,7 @@
 		let availableBudget = initialIncome - fixedCosts - minSavingsLimit;
 
 		let vacationMultiplier = selectedIncomeTab === 'fixed' ? 0.008 : 0.054;
-		let vacationFactor = (vacationMultiplier * employerFeeSalary * vacationDays) / 12;
+		let vacationFactor = (vacationMultiplier * employerFeeSalary * $incomeData.vacationDays) / 12;
 
 		// Solve directly for max gross salary
 		maxGrossSalary = Math.floor(availableBudget / (employerFeeSalary + vacationFactor));
@@ -73,6 +72,9 @@
 		console.log('Max gross salary:', maxGrossSalary);
 		console.log('Final grossSalary:', grossSalary);
 		console.log('Vacation cost:', vacationCost);
+		console.log('Total expenses:', totalExpenses);
+		console.log('Total pension:', totalPension);
+
 		console.log('Final salary cost:', salaryCost);
 		console.log('Savings (with min limit):', calculatedSavings);
 	}
@@ -113,10 +115,14 @@
 			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
 				<Pension bind:value={$incomeData.pension} />
 				<Savings {calculatedSavings} />
-				<Vacation bind:choice={vacationDays} fixed={selectedIncomeTab === 'fixed'} {vacationCost} />
-				<Insurance bind:value={insurance} />
 				<Expenses on:total={getTotalExpenses} />
 				<Car bind:value={car} bind:choice={$incomeData.carChoice} />
+				<Vacation
+					bind:choice={$incomeData.vacationDays}
+					fixed={selectedIncomeTab === 'fixed'}
+					{vacationCost}
+				/>
+				<Insurance bind:value={insurance} />
 			</div>
 		{:else}
 			<Card header="Inkomst saknas">

@@ -11,7 +11,7 @@
 
 	<slot />
 	<div class="mt-8 w-full flex flex-row justify-end">
-		<p class="text-xs">Uppdaterad 30 Maj, 2025</p>
+		<p class="text-xs">Uppdaterad 28 Maj, 2025</p>
 	</div>
 </div>
 
