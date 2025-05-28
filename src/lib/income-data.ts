@@ -6,22 +6,33 @@ export type Expense = {
 	value: string;
 };
 
+export type Assignment = {
+	id: number;
+	label: string;
+	hours: number;
+	pricePerHour: number;
+	percentage: number;
+};
+
 export type IncomeData = {
 	income: string;
 	insurance: string;
 	pension: string;
 	savings: string;
 	vacationChoice: number;
+	vacationDays: number;
 	carChoice: number;
 	expenses: Expense[];
+	assignments?: Assignment[];
 };
 
 const initialData = {
-	income: '100000',
+	income: '',
 	insurance: '1000',
 	pension: '2000',
-	savings: '5000',
+	savings: '',
 	vacationChoice: 1,
+	vacationDays: 25,
 	carChoice: 0,
 	expenses: [
 		{
@@ -37,12 +48,21 @@ const initialData = {
 			value: ''
 		},
 		{
-			label: 'Utbildning',
+			label: 'Friskvård',
 			value: ''
 		},
 		{
-			label: 'Friskvård',
+			label: 'Utbildning',
 			value: ''
+		}
+	],
+	assignments: [
+		{
+			id: 1,
+			label: '',
+			hours: 168,
+			pricePerHour: 0,
+			percentage: 0
 		}
 	]
 };
