@@ -17,10 +17,10 @@ export type IncomeData = {
 };
 
 const initialData = {
-	income: '100000',
+	income: '',
 	insurance: '1000',
 	pension: '2000',
-	savings: '5000',
+	savings: '',
 	vacationChoice: 1,
 	carChoice: 0,
 	expenses: [

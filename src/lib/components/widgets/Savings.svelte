@@ -8,7 +8,13 @@
 
 <Card header="Sparande">
 	<p class="pb-4">Kan användas till extra ledighet, arbetsrelaterade inköp, löneväxling etc.</p>
-	<Output>
-		{formatterToSek.format(calculatedSavings)}
-	</Output>
+	{#if calculatedSavings >= 0}
+		<Output>
+			{formatterToSek.format(calculatedSavings)}
+		</Output>
+	{:else}
+		<p class="mt-4 text-xl font-medium text-right text-red-600">
+			{formatterToSek.format(calculatedSavings)}
+		</p>
+	{/if}
 </Card>

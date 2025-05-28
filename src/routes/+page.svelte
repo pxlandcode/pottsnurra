@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { incomeData } from '$lib/income-data';
+	import Card from '$ui/Card.svelte';
 	import Car from '$widgets/Car.svelte';
 	import Expenses from '$widgets/Expenses.svelte';
 	import GrossSalary from '$widgets/GrossSalary.svelte';
@@ -11,11 +12,13 @@
 	import { onMount } from 'svelte';
 	import { scale } from 'svelte/transition';
 
-	// 💡 Constants
 	const employerFeeSalary = 1.3142;
 	const employerFeePension = 1.2426;
 	const payrollTax = 0.3142;
 	const pensionTax = 0.2426;
+
+	const minSavingsLimit = -10000;
+	const minIncomeLimit = 0;
 
 	let ready = false;
 	let insurance = '1000';
@@ -35,50 +38,43 @@
 	let vacationCost = 0;
 
 	$: {
-		if ($incomeData.income) {
-			const initialIncome = Number($incomeData.income);
+		const initialIncome = Number($incomeData.income);
+		const pensionCost = +$incomeData.pension * employerFeePension;
+		const fixedCosts = +insurance + +totalExpenses + +car + pensionCost;
 
-			// STEP 1: calculate fixed costs (including pension with employer fees)
-			const pensionCost = +$incomeData.pension * employerFeePension;
-			const fixedCosts = +insurance + +totalExpenses + +car + pensionCost;
+		let availableBudget = initialIncome - fixedCosts - minSavingsLimit;
 
-			// STEP 2: how much total budget is left for salary + vacation?
-			let availableForSalaryAndVacation = Math.max(initialIncome - fixedCosts, 0);
+		let vacationMultiplier = selectedIncomeTab === 'fixed' ? 0.008 : 0.054;
+		let vacationFactor = (vacationMultiplier * employerFeeSalary * vacationDays) / 12;
 
-			// STEP 3: calculate provisional max gross salary (before multiplying)
-			maxGrossSalary = Math.floor(availableForSalaryAndVacation / employerFeeSalary);
+		// Solve directly for max gross salary
+		maxGrossSalary = Math.floor(availableBudget / (employerFeeSalary + vacationFactor));
 
-			// STEP 4: clamp grossSalary to that max
-			grossSalary = Math.min(grossSalary, maxGrossSalary);
-
-			// STEP 5: calculate vacation cost (based on grossSalary)
-			vacationCost =
-				selectedIncomeTab === 'fixed'
-					? (grossSalary * 0.008 * employerFeeSalary * vacationDays) / 12
-					: (grossSalary * 0.054 * employerFeeSalary * vacationDays) / 12;
-
-			// STEP 6: calculate total salary cost (grossSalary × employer fee)
-			const salaryCost = grossSalary * employerFeeSalary;
-
-			// STEP 7: recompute how much is left after salary + vacation
-			const totalUsed = salaryCost + vacationCost;
-			const availableForSavings = Math.max(availableForSalaryAndVacation - totalUsed, 0);
-
-			// STEP 8: set outputs
-			calculatedSavings = availableForSavings;
-
-			// STEP 9: pension & salary net calculation
-			if (grossSalary > 0) {
-				totalPension = +$incomeData.pension + +$incomeData.pension * pensionTax;
-				totalSalary = Math.round(calculateIncomeWithPayrollTax(grossSalary - totalPension));
-			}
-
-			console.log('Max Gross Salary (before employer fees):', maxGrossSalary);
-			console.log('Pension cost (with employer fees):', pensionCost);
-			console.log('Vacation cost:', vacationCost);
-			console.log('Salary cost (with employer fees):', salaryCost);
-			console.log('Savings:', calculatedSavings);
+		// If grossSalary is unset or too high, clamp it
+		if (!grossSalary || isNaN(grossSalary) || grossSalary > maxGrossSalary) {
+			grossSalary = maxGrossSalary;
 		}
+
+		// Final vacation cost
+		vacationCost = grossSalary * vacationFactor;
+
+		const salaryCost = grossSalary * employerFeeSalary;
+		const totalUsed = salaryCost + vacationCost;
+
+		const availableForSavings = Math.max(initialIncome - fixedCosts - totalUsed, minSavingsLimit);
+		calculatedSavings = isNaN(availableForSavings) ? 0 : availableForSavings;
+
+		if (grossSalary > 0) {
+			totalPension = +$incomeData.pension + +$incomeData.pension * pensionTax;
+			totalSalary = Math.round(calculateIncomeWithPayrollTax(grossSalary - totalPension));
+		}
+
+		console.log('Initial income:', initialIncome);
+		console.log('Max gross salary:', maxGrossSalary);
+		console.log('Final grossSalary:', grossSalary);
+		console.log('Vacation cost:', vacationCost);
+		console.log('Final salary cost:', salaryCost);
+		console.log('Savings (with min limit):', calculatedSavings);
 	}
 
 	const getTotalExpenses = (e: CustomEvent) => (totalExpenses = e.detail);
@@ -107,22 +103,27 @@
 			on:selectedTabChange={(e) => (selectedIncomeTab = e.detail)}
 		/>
 
-		<GrossSalary
-			salary={grossSalary}
-			maxSalary={maxGrossSalary}
-			onSalaryChange={(newSalary) => (grossSalary = newSalary)}
-		/>
+		{#if Number($incomeData.income) > minIncomeLimit}
+			<GrossSalary
+				salary={grossSalary}
+				maxSalary={maxGrossSalary}
+				onSalaryChange={(newSalary) => (grossSalary = newSalary)}
+			/>
 
-		<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
-			<Expenses on:total={getTotalExpenses} />
-			<Car bind:value={car} bind:choice={$incomeData.carChoice} />
-			<Pension bind:value={$incomeData.pension} />
-			<Savings {calculatedSavings} />
-
-			<Vacation bind:choice={vacationDays} fixed={selectedIncomeTab === 'fixed'} {vacationCost} />
-
-			<Insurance bind:value={insurance} />
-		</div>
+			<div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+				<Pension bind:value={$incomeData.pension} />
+				<Savings {calculatedSavings} />
+				<Vacation bind:choice={vacationDays} fixed={selectedIncomeTab === 'fixed'} {vacationCost} />
+				<Insurance bind:value={insurance} />
+				<Expenses on:total={getTotalExpenses} />
+				<Car bind:value={car} bind:choice={$incomeData.carChoice} />
+			</div>
+		{:else}
+			<Card header="Inkomst saknas">
+				<p class="text-center font-semibold mt-4">
+					Lägg till en inkomst innan du kan justera dina utgifter.
+				</p>
+			</Card>
+		{/if}
 	</div>
 {/if}
-§
