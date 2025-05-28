@@ -6,7 +6,7 @@
 
 <div class="container max-w-6xl p-4 mx-auto">
 	<div class="flex flex-row justify-center my-8">
-		<h1 class="text-8xl">Pottsnurran</h1>
+		<h1 class="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl">Pottsnurran</h1>
 	</div>
 
 	<slot />
@@ -14,5 +14,3 @@
 		<p class="text-xs">Uppdaterad 28 Maj, 2025</p>
 	</div>
 </div>
-
-<ToastContainer />

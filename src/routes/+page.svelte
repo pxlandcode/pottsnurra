@@ -68,15 +68,15 @@
 			totalSalary = Math.round(calculateIncomeWithPayrollTax(grossSalary - totalPension));
 		}
 
-		console.log('Initial income:', initialIncome);
-		console.log('Max gross salary:', maxGrossSalary);
-		console.log('Final grossSalary:', grossSalary);
-		console.log('Vacation cost:', vacationCost);
-		console.log('Total expenses:', totalExpenses);
-		console.log('Total pension:', totalPension);
-
-		console.log('Final salary cost:', salaryCost);
-		console.log('Savings (with min limit):', calculatedSavings);
+		//Commented out for easy access when debugging
+		// console.log('Initial income:', initialIncome);
+		// console.log('Max gross salary:', maxGrossSalary);
+		// console.log('Final grossSalary:', grossSalary);
+		// console.log('Vacation cost:', vacationCost);
+		// console.log('Total expenses:', totalExpenses);
+		// console.log('Total pension:', totalPension);
+		// console.log('Final salary cost:', salaryCost);
+		// console.log('Savings (with min limit):', calculatedSavings);
 	}
 
 	const getTotalExpenses = (e: CustomEvent) => (totalExpenses = e.detail);
