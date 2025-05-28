@@ -51,7 +51,10 @@
 
 		// If grossSalary is unset or too high, clamp it
 		if (!grossSalary || isNaN(grossSalary) || grossSalary > maxGrossSalary) {
-			grossSalary = maxGrossSalary;
+			grossSalary = Math.round(maxGrossSalary * 0.6);
+			if (grossSalary > maxGrossSalary) {
+				grossSalary = maxGrossSalary;
+			}
 		}
 
 		// Final vacation cost
