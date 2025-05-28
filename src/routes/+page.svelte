@@ -50,11 +50,10 @@
 		maxGrossSalary = Math.floor(availableBudget / (employerFeeSalary + vacationFactor));
 
 		// If grossSalary is unset or too high, clamp it
-		if (!grossSalary || isNaN(grossSalary) || grossSalary > maxGrossSalary) {
+		if (!grossSalary || isNaN(grossSalary)) {
 			grossSalary = Math.round(maxGrossSalary * 0.6);
-			if (grossSalary > maxGrossSalary) {
-				grossSalary = maxGrossSalary;
-			}
+		} else if (grossSalary > maxGrossSalary) {
+			grossSalary = maxGrossSalary;
 		}
 
 		// Final vacation cost
